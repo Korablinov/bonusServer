@@ -3,6 +3,7 @@
 
 namespace Rarus\Interns\BonusServer\Bonus;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 
@@ -16,7 +17,10 @@ class DataBase
         $this->queryBuilder = $queryBuilder;
     }
 
-    public function isUserExist(int $contactId)
+    /**
+     * @throws Exception
+     */
+    public function isUserExist(int $contactId): bool
     {
         $result = $this->queryBuilder
             ->select('*')
@@ -28,6 +32,9 @@ class DataBase
         return is_array($result);
     }
 
+    /**
+     * @throws Exception
+     */
     public function addUser($contactId)
     {
         $this->queryBuilder
@@ -42,6 +49,9 @@ class DataBase
             ->executeQuery();
     }
 
+    /**
+     * @throws Exception
+     */
     public function createLocalDeal($dealId, $contactId, $dealStage, $processing = null): void
     {
         $this->queryBuilder
@@ -58,22 +68,28 @@ class DataBase
             ->setParameter(1, $contactId)
             ->setParameter(2, $dealStage)
             ->setParameter(3, $processing)
-            ->executeStatement();
+            ->executeQuery();
     }
 
+    /**
+     * @throws Exception
+     */
     public function addBonusesToProcessing(int $processing, $dealId)
     {
-        return $this->queryBuilder
-            ->update('deals', 'd')
-            ->set('d.processing', '?')
-            ->set('d.dealStage', '?')
+        $this->queryBuilder
+            ->update('deals')
+            ->set('processing', '?')
+            ->set('dealStage', '?')
             ->setParameter(0, $processing)
             ->setParameter(1, 'bonus_payment')
             ->where('dealID = :dealId')
             ->setParameter('dealId', $dealId)
-            ->fetchAssociative();
+            ->executeQuery();
     }
 
+    /**
+     * @throws Exception
+     */
     public function getDealStage($dealId)
     {
         return $this->queryBuilder
@@ -81,43 +97,46 @@ class DataBase
             ->from('deals', 'd')
             ->where('dealID = :dealId')
             ->setParameter('dealId', $dealId)
-            ->fetchAssociative();
+            ->fetchAssociative()['dealStage'];
 
     }
-    public function setContactBalance($balance,$contactId)
+
+    /**
+     * @throws Exception
+     */
+    public function setContactBalance($balance, $contactId)
     {
         $this->queryBuilder
-            ->update('contacts','c')
-            ->set('c.bonusCount','?')
-            ->setParameter(0,$balance)
+            ->update('contacts')
+            ->set('bonusCount', '?')
+            ->setParameter(0, $balance)
             ->where('contactID = :contactId')
-            ->setParameter('contactId',$contactId)
+            ->setParameter('contactId', $contactId)
             ->executeStatement();
     }
 
+    /**
+     * @throws Exception
+     */
     public function getContactBalance($contactId)
     {
         return $this->queryBuilder
-            ->select('bonusCount')
-            ->from('contacts', 'c')
-            ->where('contactID = :contactId')
-            ->setParameter('contactId', $contactId)
+            ->getConnection()
+            ->executeQuery(sprintf('SELECT bonusCount FROM contacts WHERE contactID=%d',$contactId))
             ->fetchAssociative()['bonusCount'];
     }
 
-    public function bonusChanges($contactId, $dealId,$processing,$contactBalance)
+    /**
+     * @throws Exception
+     */
+    public function bonusChanges($contactId, $processing, $contactBalance)
     {
         $this->queryBuilder
-            ->update('contacts', 'c')
-            ->update('deals', 'd')
-            ->set('c.bonusCount', '?')
-            ->set('d.processing', '?')
-            ->setParameter(0, $contactBalance- $processing)
-            ->setParameter(1, 0)
-            ->where('c.contactID = :contactId')
-            ->where('d.dealID = :dealId')
+            ->update('contacts')
+            ->set('bonusCount', '?')
+            ->setParameter(0, $contactBalance - $processing)
+            ->where('contactID = :contactId')
             ->setParameter('contactId', $contactId)
-            ->setParameter('dealId', $dealId)
             ->executeStatement();
     }
 }

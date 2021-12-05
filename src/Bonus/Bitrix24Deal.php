@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Rarus\Interns\BonusServer\Bonus;
 
+use Bitrix24\SDK\Core\Exceptions\BaseException;
+use Bitrix24\SDK\Core\Exceptions\TransportException;
+use Bitrix24\SDK\Services\CRM\Deal\Result\DealItemResult;
 use Bitrix24\SDK\Services\ServiceBuilder;
-use Rarus\Interns\BonusServer\TrainingClassroom\Services\Bitrix24ApiClientServiceBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 class Bitrix24Deal
@@ -21,7 +23,11 @@ class Bitrix24Deal
         return (int)str_replace('DEAL_', '', $request->get('document_id')[2]);
     }
 
-    public function getDealbyId( int $dealId)
+    /**
+     * @throws TransportException
+     * @throws BaseException
+     */
+    public function getDealById(int $dealId): DealItemResult
     {
         return $this->serviceBuilder
             ->getCRMScope()
@@ -29,7 +35,11 @@ class Bitrix24Deal
             ->get($dealId)
             ->deal();
     }
-    
+
+    /**
+     * @throws TransportException
+     * @throws BaseException
+     */
     public function getProductRowsByDealId(int $dealId): array
     {
         return $this->serviceBuilder
@@ -41,6 +51,11 @@ class Bitrix24Deal
             ->getResult()
             ->getResultData();
     }
+
+    /**
+     * @throws TransportException
+     * @throws BaseException
+     */
     public function updateDealProductRows(array $dealProductRows, int $dealId): void
     {
         $this->serviceBuilder
@@ -59,15 +74,17 @@ class Bitrix24Deal
             ->getResultData();
     }
 
-    public function getDealOpportunity($dealId)
+    /**
+     * @throws TransportException
+     * @throws BaseException
+     */
+    public function getDealOpportunity($dealId): string
     {
-        return (string)$this->serviceBuilder
+        return $this->serviceBuilder
             ->getCRMScope()
-            ->dealProductRows()
-            ->core
-            ->call('crm.deal.productrows.get',['ID' => $dealId])
-            ->getResponseData()
-            ->getResult()
-            ->getResultData()['OPPORTUNITY'];
+            ->deal()
+            ->get($dealId)
+            ->deal()
+            ->OPPORTUNITY;
     }
 }
