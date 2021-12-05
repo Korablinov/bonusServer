@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 (new Dotenv())->bootEnv(dirname(__DIR__) . '/.env');
 
-$log = new Logger('name');
+$log = new Logger('newOrder');
 $log->pushHandler(new StreamHandler(dirname(__DIR__) . '/logs/webhook.log', Logger::DEBUG));
 $log->pushProcessor(new \Monolog\Processor\MemoryUsageProcessor(true, true));
 $log->pushProcessor(new \Monolog\Processor\WebProcessor());
@@ -41,5 +41,5 @@ $contactIdInDataBase = $dataBase->isUserExist($contactId);
 $log->debug('result',[$contactIdInDataBase]);
 
 if (!$contactIdInDataBase){
-    $dataBase->addUserToDb($contactId);
-}
+    $dataBase->addUser($contactId);
+}$dataBase->createLocalDeal($dealId,$contactId,DataBase::NEW_ORDER);

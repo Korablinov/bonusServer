@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
+use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\EntityManager;
+
 
 require_once \dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -22,3 +25,26 @@ if ($input->hasParameterOption('--no-debug', true)) {
 }
 
 (new Dotenv())->bootEnv(dirname(__DIR__) . '/.env');
+
+$paths = [
+    realpath(__DIR__ . '/src')
+];
+$isDevMode = true;
+
+// the connection configuration
+$dbParams = array(
+    'driver' => 'pdo_sqlite',
+    'path' => __DIR__ . '/db.sqlite'
+);
+
+$cache = new \Symfony\Component\Cache\Adapter\FilesystemAdapter();
+$wrapper = new \Symfony\Component\Cache\DoctrineProvider($cache);
+
+$config = Setup::createAnnotationMetadataConfiguration(
+    $paths,
+    $isDevMode,
+    null,
+    $wrapper,
+    false
+);
+return EntityManager::create($dbParams, $config);

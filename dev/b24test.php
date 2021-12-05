@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 // подключили авторизацию по хуку
-require 'tests/bootstrap.php';
+require '../tests/bootstrap.php';
 
 try {
     $b24Service = \Rarus\Interns\BonusServer\TrainingClassroom\Services\Bitrix24ApiClientServiceBuilder::getServiceBuilder();
