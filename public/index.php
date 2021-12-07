@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -37,7 +36,7 @@ try {
     $log->debug('dealID: ', [$dealId]);
     $log->debug('Product', [$productRows]);
 
-    $contactId = (int)$bitrixDeal->getDealById($dealId)->CONTACT_ID;
+    $contactId = (int) $bitrixDeal->getDealById($dealId)->CONTACT_ID;
 
     /** @var EntityManager $entityManager */
     $entityManager = require_once '../tests/bootstrap.php';

@@ -77,7 +77,6 @@ class Bonus
             $this->dealProductRows[$keyPart]['DISCOUNT_SUM'] =
                 floor($allocatedDiscount[$keyPart]->getAmount() / $this->dealProductRows[$keyPart]['QUANTITY']);
         }
-
         return $this->dealProductRows;
     }
 
