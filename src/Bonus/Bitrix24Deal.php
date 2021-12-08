@@ -18,6 +18,10 @@ class Bitrix24Deal
         $this->serviceBuilder = $serviceBuilder;
     }
 
+    /**
+     * @param Request $request
+     * @return int
+     */
     public function getDealId(Request $request): int
     {
         return (int)str_replace('DEAL_', '', $request->get('document_id')[2]);

@@ -51,7 +51,7 @@ try {
     $updateDeal = $bonus->calculateDiscount();
     $bitrixDeal->updateDealProductRows($updateDeal, $dealId);
     $dataBase->addBonusesToProcessing((int)$bonus->bonusCount(), $dealId);
-    $log->debug('maes',[
+    $log->debug( 'countBonus and dealId',[
         'bonusCount'=>$contactBalance,
         'dealId'=>$dealId,
     ]);
