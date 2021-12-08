@@ -47,14 +47,19 @@ try {
     $log->debug('result', [$contactIdInDataBase]);
     $contactBalance = $dataBase->getContactBalance($contactId);
 
-    $bonus = new Bonus($log, (int) $contactBalance, $dealOpportunity, $productRows);
+    $bonus = new Bonus($log, (int)$contactBalance, $dealOpportunity, $productRows);
     $updateDeal = $bonus->calculateDiscount();
+
+    if ($updateDeal === $productRows) {
+        throw new DomainException('У клиента недостаточно бонусов!');
+    }
+
     $bitrixDeal->updateDealProductRows($updateDeal, $dealId);
     $dataBase->addBonusesToProcessing((int)$bonus->bonusCount(), $dealId);
-    $log->debug( 'countBonus and dealId',[
-        'bonusCount'=>$contactBalance,
-        'dealId'=>$dealId,
+    $log->debug('countBonus and dealId', [
+        'bonusCount' => $contactBalance,
+        'dealId' => $dealId,
     ]);
-}catch (Throwable $err) {
+} catch (Throwable $err) {
     $log->error($err->getMessage(), [$err->getCode(), $err->getFile(), $err->getTraceAsString()]);
 }
